@@ -3,3 +3,5 @@ server_files/
 
 # Client download directory
 client_downloads/
+
+.DS_Store
