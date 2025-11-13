@@ -1,0 +1,5 @@
+# Server storage directory (uploaded files)
+server_files/
+
+# Client download directory
+client_downloads/
