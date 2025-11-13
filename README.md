@@ -241,8 +241,6 @@ Temporarily modify `server.py` to slow down transfers:
 
 Create a very large file for testing
 
-```
-
 Then upload from multiple terminals - the transfers will be slow enough to see simultaneous connections.
 
 ---
@@ -269,7 +267,7 @@ Enter the path of file to upload: fake.txt
 Expected output:
 Error: File 'fake.txt' not found!
 
-````
+```
 
 ---
 
@@ -284,7 +282,7 @@ HOST = "0.0.0.0"          # Listen on all interfaces
 PORT = 5001               # Server port
 STORAGE_DIR = "server_files"  # Where to store uploads
 CHUNK_SIZE = 4096         # 4KB chunks
-````
+```
 
 **client.py:**
 
