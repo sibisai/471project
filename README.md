@@ -12,7 +12,7 @@
 
 - **Language:** Python 3.7+
 - **Dependencies:** None (uses standard library only)
-- **Description:** TCP client-server file transfer application with chunked transfers and real-time progress indicators
+- **Description:** TCP client-server file transfer application with two-connection architecture (control and data), chunked transfers, and real-time progress indicators
 
 ## 🚀 How to Execute
 
@@ -90,14 +90,15 @@ project/
 **Server (server.py):**
 
 - Host: `0.0.0.0` (listens on all interfaces)
-- Port: `5001`
+- Control Port: `5001` (for commands)
+- Data Port: `5002` (for file transfers)
 - Storage: `server_files/`
 - Chunk size: `4096 bytes`
 
 **Client (client.py):**
 
 - Server: `127.0.0.1` (localhost)
-- Port: `5001`
+- Control Port: `5001`
 - Downloads: `client_downloads/`
 - Chunk size: `4096 bytes`
 
@@ -127,41 +128,58 @@ Don't forget to remove these delays after testing!
 
 ## 📝 Protocol Details
 
+**Two-Connection Architecture:**
+
+- **Control Connection (Port 5001):** Persistent connection for commands (UPLOAD/DOWNLOAD/LIST/QUIT)
+- **Data Connection (Port 5002):** Temporary connection opened for each file transfer
+
 **Upload:**
 
 ```
-Client → Server: UPLOAD filename filesize\n
-Server → Client: OK\n
-Client → Server: [binary file data]
-Server → Client: DONE\n
+[Control] Client → Server: UPLOAD filename filesize\n
+[Control] Server → Client: OK data_port\n
+[Data]    Client connects to data_port
+[Data]    Client → Server: [binary file data]
+[Control] Server → Client: DONE\n
 ```
 
 **Download:**
 
 ```
-Client → Server: DOWNLOAD filename\n
-Server → Client: OK filesize\n
-Client → Server: READY\n
-Server → Client: [binary file data]
-Server → Client: DONE\n
+[Control] Client → Server: DOWNLOAD filename\n
+[Control] Server → Client: OK filesize data_port\n
+[Control] Client → Server: READY\n
+[Data]    Client connects to data_port
+[Data]    Server → Client: [binary file data]
+[Control] Server → Client: DONE\n
 ```
 
 **List Files:**
 
 ```
-Client → Server: LIST\n
-Server → Client: OK\n
-Server → Client: filename1\n
-Server → Client: filename2\n
+[Control] Client → Server: LIST\n
+[Control] Server → Client: OK\n
+[Control] Server → Client: filename1\n
+[Control] Server → Client: filename2\n
 ...
-Server → Client: DONE\n
+[Control] Server → Client: DONE\n
+```
+
+**Quit:**
+
+```
+[Control] Client → Server: QUIT\n
+[Control] Server → Client: OK\n
+[Control] Connection closes
 ```
 
 ---
 
 ## ✅ Features Implemented
 
-- ✅ TCP client-server architecture
+- ✅ Two-connection architecture (control + data)
+- ✅ Persistent control connection for commands
+- ✅ Temporary data connection for file transfers
 - ✅ Multi-client support (threading)
 - ✅ Chunked file transfers (4KB chunks)
 - ✅ Real-time progress indicators
@@ -174,6 +192,9 @@ Server → Client: DONE\n
 
 ## 🎯 Special Notes
 
+- Uses **two-connection architecture** like FTP: persistent control connection (port 5001) for commands and temporary data connection (port 5002) for file transfers
+- Control connection remains open throughout the client session
+- Data connection opens/closes for each upload/download operation
 - All file transfers use binary mode to preserve file integrity
 - Server automatically creates storage directory if it doesn't exist
 - Client automatically creates download directory if it doesn't exist
