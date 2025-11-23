@@ -12,7 +12,7 @@
 
 - **Language:** Python 3.7+
 - **Dependencies:** None (uses standard library only)
-- **Description:** TCP client-server file transfer application with chunked transfers and progress bars
+- **Description:** TCP client-server file transfer application with chunked transfers and real-time progress indicators
 
 ## 🚀 How to Execute
 
@@ -111,7 +111,7 @@ To test multiple simultaneous connections:
 2. Open multiple terminals and run `python client.py` in each
 3. Start uploads/downloads from each client
 
-**Note:** Transfers with small files complete instantly. To see multiple active connections and progress bars in action, temporarily add delays to `server.py`:
+**Note:** Transfers with small files complete instantly. To see multiple active connections and progress indicators in action, temporarily add delays to `server.py`:
 
 ```python
 # Add after line 64 (inside upload loop):
@@ -164,7 +164,7 @@ Server → Client: DONE\n
 - ✅ TCP client-server architecture
 - ✅ Multi-client support (threading)
 - ✅ Chunked file transfers (4KB chunks)
-- ✅ Real-time progress bars
+- ✅ Real-time progress indicators
 - ✅ Upload/Download functionality
 - ✅ List available files
 - ✅ Error handling (missing files, connection errors)
@@ -178,4 +178,4 @@ Server → Client: DONE\n
 - Server automatically creates storage directory if it doesn't exist
 - Client automatically creates download directory if it doesn't exist
 - Files with the same name will be overwritten on upload
-- Progress bars show percentage and bytes transferred in real-time
+- Progress indicators show percentage and bytes transferred in real-time
