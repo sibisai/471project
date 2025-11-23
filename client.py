@@ -140,6 +140,45 @@ def download_file(filename):
     except Exception as e:
         print(f"\n✗ Download failed: {e}")
 
+def list_files():
+    """List available files on the server"""
+    print(f"\n=== AVAILABLE FILES ===")
+    
+    try:
+        # Connect to server
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((SERVER_HOST, SERVER_PORT))
+        
+        # Send list command
+        s.sendall(b"LIST\n")
+        
+        # Wait for OK from server
+        response = recv_line(s)
+        if response != "OK":
+            print(f"Server error: {response}")
+            s.close()
+            return
+        
+        # Receive file list
+        files = []
+        while True:
+            line = recv_line(s)
+            if line == "DONE":
+                break
+            files.append(line)
+        
+        # Display files
+        if files:
+            for i, filename in enumerate(files, 1):
+                print(f"{i}. {filename}")
+        else:
+            print("No files available on server.")
+        
+        s.close()
+    
+    except Exception as e:
+        print(f"\n✗ List failed: {e}")
+
 def main_menu():
     """Display interactive menu"""
     print("\n" + "="*50)
@@ -147,14 +186,15 @@ def main_menu():
     print("="*50)
     print("\n1. Upload a file")
     print("2. Download a file")
-    print("3. Exit")
+    print("3. List available files")
+    print("4. Exit")
     print()
 
 def main():
     """Main client loop"""
     while True:
         main_menu()
-        choice = input("Enter your choice (1-3): ").strip()
+        choice = input("Enter your choice (1-4): ").strip()
         
         if choice == "1":
             filepath = input("\nEnter the path of file to upload: ").strip()
@@ -165,11 +205,14 @@ def main():
             download_file(filename)
         
         elif choice == "3":
+            list_files()
+        
+        elif choice == "4":
             print("\nGoodbye!")
             break
         
         else:
-            print("\n✗ Invalid choice. Please enter 1, 2, or 3.")
+            print("\n✗ Invalid choice. Please enter 1, 2, 3, or 4.")
         
         input("\nPress Enter to continue...")
 

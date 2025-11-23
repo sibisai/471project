@@ -1,7 +1,6 @@
 import socket
 import threading
 import os
-# import time
 
 # Configuration
 HOST = "0.0.0.0"
@@ -62,11 +61,28 @@ def handle_client(conn, addr):
                         break
                     f.write(chunk)
                     received += len(chunk)
-                    # time.sleep(1)
             
             # Send DONE acknowledgment
             conn.sendall(b"DONE\n")
             print(f"[UPLOAD] Complete: {filename} saved ({received} bytes)")
+        
+        elif command == "LIST":
+            # List available files
+            print(f"[LIST] Sending file list to {addr}")
+            
+            # Send OK acknowledgment
+            conn.sendall(b"OK\n")
+            
+            # Get list of files in storage directory
+            files = os.listdir(STORAGE_DIR)
+            
+            # Send each filename
+            for filename in files:
+                conn.sendall(f"{filename}\n".encode())
+            
+            # Send DONE acknowledgment
+            conn.sendall(b"DONE\n")
+            print(f"[LIST] Complete: Sent {len(files)} filenames")
         
         elif command == "DOWNLOAD":
             # Parse download request
@@ -101,7 +117,6 @@ def handle_client(conn, addr):
                         break
                     conn.sendall(chunk)
                     sent += len(chunk)
-                    # time.sleep(1)
             
             # Send DONE acknowledgment
             conn.sendall(b"DONE\n")
