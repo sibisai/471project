@@ -1,71 +1,22 @@
 # File Transfer Application - Phase 1
 
-A simple Python client-server file transfer application using TCP sockets with chunked transfers and progress bars.
+## 👥 Team Members
 
----
+- Andrew Chang - ankechang2752@csu.fullerton.edu
+- Hyndavi Teegela - Hyndavi.teegela@csu.fullerton.edu
+- Jenny Phan - Jphan131@csu.fullerton.edu
+- Jason Luu - jluu6324@csu.fullerton.edu
+- Sibi Ukeshkumar - sibi@csu.fullerton.edu
 
-## 📁 Project Structure
+## 📋 Project Information
 
-```
-project/
-│
-├── server.py              # TCP server for handling file uploads/downloads
-├── client.py              # Interactive client for transferring files
-├── README.md              # This file
-│
-├── server_files/          # Server storage (created automatically)
-│   └── (uploaded files stored here)
-│
-├── client_downloads/      # Client downloads (created automatically)
-│   └── (downloaded files saved here)
-│
-└── test_files/            # Test files (you create these)
-    ├── small.txt
-    ├── medium.jpg
-    └── large.pdf
-```
+- **Language:** Python 3.7+
+- **Dependencies:** None (uses standard library only)
+- **Description:** TCP client-server file transfer application with chunked transfers and progress bars
 
----
+## 🚀 How to Execute
 
-## ⚙️ Requirements
-
-- **Python 3.7+** (no external libraries needed)
-- **Operating System**: Windows, macOS, or Linux
-
----
-
-## 🚀 Setup Instructions
-
-### 1. Create Project Directory
-
-```bash
-mkdir project
-cd project
-```
-
-### 2. Create the Files
-
-Save the following files in your project directory:
-
-- `server.py` - The server code
-- `client.py` - The client code
-- `README.md` - This documentation
-
-### 3. Create Test Files (Optional)
-
-Create a `test_files/` directory with some sample files:
-
-```bash
-mkdir test_files
-```
-
-Or use any existing files you want to test with (images, PDFs, etc.)
-
----
-
-## 🧪 How to Run & Test
-
-### Step 1: Start the Server
+### 1. Start the Server
 
 Open a terminal and run:
 
@@ -73,303 +24,158 @@ Open a terminal and run:
 python server.py
 ```
 
-**Expected output:**
+The server will start listening on port 5001.
 
-```
-[LISTENING] Server is listening on 0.0.0.0:5001
-[STORAGE] Files will be stored in: /path/to/server_files
-[READY] Waiting for connections...
-```
+### 2. Start the Client
 
-Keep this terminal open - the server is now running!
-
----
-
-### Step 2: Start the Client
-
-Open a **second terminal** (keep the server running) and run:
+Open a **second terminal** and run:
 
 ```bash
 python client.py
 ```
 
-**Expected output:**
-
-```
-==================================================
-     FILE TRANSFER CLIENT
-==================================================
-
-1. Upload a file
-2. Download a file
-3. Exit
-
-Enter your choice (1-3):
-```
+You'll see an interactive menu with the following options.
 
 ---
 
-## 📤 Test Case 1: Upload a File
-
-1. In the client menu, type `1` and press Enter
-2. Enter the path to a test file:
-   ```
-   Enter the path of file to upload: test_files/small.txt
-   ```
-3. Watch the progress bar:
-
-   ```
-   === UPLOADING FILE ===
-   File: small.txt
-   Size: 28 bytes
-   Uploading: 100% [28/28 bytes]
-   ✓ Upload complete!
-   ```
-
-4. Check the server terminal - you should see:
-
-   ```
-   [NEW CONNECTION] ('127.0.0.1', 54321) connected
-   [UPLOAD] Receiving small.txt (28 bytes) from ('127.0.0.1', 54321)
-   [UPLOAD] Complete: small.txt saved (28 bytes)
-   [DISCONNECTED] ('127.0.0.1', 54321)
-   ```
-
-5. Verify the file exists:
-   ```bash
-   ls server_files/
-   # Should show: small.txt
-   ```
-
----
-
-## 📥 Test Case 2: Download a File
-
-1. In the client menu, type `2` and press Enter
-2. Enter the filename to download:
-   ```
-   Enter the filename to download: small.txt
-   ```
-3. Watch the progress bar:
-
-   ```
-   === DOWNLOADING FILE ===
-   File: small.txt
-   Size: 28 bytes
-   Downloading: 100% [28/28 bytes]
-   ✓ Download complete! Saved to: client_downloads/small.txt
-   ```
-
-4. Verify the downloaded file:
-
-   ```bash
-   ls client_downloads/
-   # Should show: small.txt
-
-   cat client_downloads/small.txt
-   # Should show: Test file
-   ```
-
----
-
-## 📋 Test Case 3: Multiple File Types
-
-Test with different file types to ensure binary transfers work:
-
-**Upload an image:**
+## 📝 Available Commands
 
 ```
+1. Upload a file       - Upload a file from your local machine to the server
+2. Download a file     - Download a file from the server to your local machine
+3. List available files - View all files currently stored on the server
+4. Exit                - Close the client application
+```
+
+### Example Usage
+
+**Upload a file:**
+
+```
+Enter your choice (1-4): 1
 Enter the path of file to upload: test_files/photo.jpg
 ```
 
-**Download it back:**
+**List available files:**
 
 ```
+Enter your choice (1-4): 3
+```
+
+**Download a file:**
+
+```
+Enter your choice (1-4): 2
 Enter the filename to download: photo.jpg
 ```
 
-**Verify integrity:**
-
-```bash
-# Compare checksums (Linux/macOS)
-md5sum test_files/photo.jpg
-md5sum client_downloads/photo.jpg
-# Should match!
-```
-
 ---
 
-## 🔄 Test Case 4: Multiple Clients
-
-**Note:** With small files, transfers complete instantly, so you'll only see `[ACTIVE CONNECTIONS] 1`. To properly test multi-client support and see the progress bar in action, add artificial delays.
-
-### Option A: Add Artificial Delay (Recommended for Testing)
-
-Temporarily modify `server.py` to slow down transfers:
-
-1. Ensure `import time` is uncommented at the top
-
-2. In the **UPLOAD** section, uncomment delay after receiving each chunk:
-
-   ```python
-   # Inside the while loop for uploads (around line 65)
-   f.write(chunk)
-   received += len(chunk)
-   time.sleep(1)  # Add 1 second delay per chunk
-   ```
-
-3. In the **DOWNLOAD** section, uncomment delay after sending each chunk:
-
-   ```python
-   # Inside the while loop for downloads (around line 104)
-   conn.sendall(chunk)
-   sent += len(chunk)
-   time.sleep(1)  # Add 1 second delay per chunk
-   ```
-
-4. Now test with multiple clients:
-
-   - Keep the server running
-   - Open **3 separate terminals** and run `python client.py` in each
-   - Start uploading/downloading from each terminal quickly
-   - Watch the server show: `[ACTIVE CONNECTIONS] 3`
-   - See the progress bars slowly update in each client (instead of instantly jumping to 100%)
-
-5. **Remove the `time.sleep()` lines after testing!**
-
-### Option B: Use Large Files
-
-Create a very large file for testing
-
-Then upload from multiple terminals - the transfers will be slow enough to see simultaneous connections.
-
----
-
-## 🧹 Test Case 5: Error Handling
-
-### Download Non-Existent File:
+## 📁 Directory Structure
 
 ```
-
-Enter the filename to download: doesnotexist.txt
-
-Expected output:
-✗ ERROR FileNotFound
-
-```
-
-### Upload Non-Existent File:
-
-```
-
-Enter the path of file to upload: fake.txt
-
-Expected output:
-Error: File 'fake.txt' not found!
-
+project/
+├── server.py              # Server application
+├── client.py              # Client application
+├── README.md              # This file
+├── server_files/          # Server storage (auto-created)
+├── client_downloads/      # Downloaded files (auto-created)
+└── test_files/            # Sample test files
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-You can modify these settings at the top of each file:
+**Server (server.py):**
 
-**server.py:**
+- Host: `0.0.0.0` (listens on all interfaces)
+- Port: `5001`
+- Storage: `server_files/`
+- Chunk size: `4096 bytes`
+
+**Client (client.py):**
+
+- Server: `127.0.0.1` (localhost)
+- Port: `5001`
+- Downloads: `client_downloads/`
+- Chunk size: `4096 bytes`
+
+---
+
+## 🧪 Testing Multi-Client Support
+
+To test multiple simultaneous connections:
+
+1. Keep the server running
+2. Open multiple terminals and run `python client.py` in each
+3. Start uploads/downloads from each client
+
+**Note:** Transfers with small files complete instantly. To see multiple active connections and progress bars in action, temporarily add delays to `server.py`:
 
 ```python
-HOST = "0.0.0.0"          # Listen on all interfaces
-PORT = 5001               # Server port
-STORAGE_DIR = "server_files"  # Where to store uploads
-CHUNK_SIZE = 4096         # 4KB chunks
+# Add after line 64 (inside upload loop):
+time.sleep(1)
+
+# Add after line 97 (inside download loop):
+time.sleep(1)
 ```
 
-**client.py:**
-
-```python
-SERVER_HOST = "127.0.0.1"  # Server address (localhost)
-SERVER_PORT = 5001         # Server port
-CHUNK_SIZE = 4096          # 4KB chunks
-DOWNLOAD_DIR = "client_downloads"  # Where to save downloads
-```
-
----
-
-## 🛑 Stopping the Server
-
-Press `Ctrl+C` in the server terminal:
-
-```
-^C
-[SHUTDOWN] Server shutting down...
-```
-
----
-
-## ✅ Expected Behavior Summary
-
-| Action                | Expected Result                                                     |
-| --------------------- | ------------------------------------------------------------------- |
-| Upload file           | Progress bar → "✓ Upload complete!" → File in `server_files/`       |
-| Download file         | Progress bar → "✓ Download complete!" → File in `client_downloads/` |
-| Download missing file | "✗ ERROR FileNotFound"                                              |
-| Upload missing file   | "Error: File not found!"                                            |
-| Multiple clients      | Server handles all simultaneously                                   |
-| File integrity        | Uploaded and downloaded files are identical                         |
-
----
-
-## 🐛 Troubleshooting
-
-**"Address already in use" error:**
-
-- Wait 30 seconds for the port to release, or restart your computer
-- Change `PORT = 5001` to a different number (e.g., `5002`)
-
-**"Connection refused" error:**
-
-- Make sure the server is running first
-- Check that `SERVER_HOST` and `SERVER_PORT` match in client.py
-
-**Files corrupt after transfer:**
-
-- Check that both `CHUNK_SIZE` values match
-- Ensure files are opened in binary mode (`'rb'` and `'wb'`)
+Don't forget to remove these delays after testing!
 
 ---
 
 ## 📝 Protocol Details
 
-**Upload Flow:**
+**Upload:**
 
 ```
 Client → Server: UPLOAD filename filesize\n
 Server → Client: OK\n
-Client → Server: [binary file data in chunks]
+Client → Server: [binary file data]
 Server → Client: DONE\n
 ```
 
-**Download Flow:**
+**Download:**
 
 ```
 Client → Server: DOWNLOAD filename\n
 Server → Client: OK filesize\n
 Client → Server: READY\n
-Server → Client: [binary file data in chunks]
+Server → Client: [binary file data]
+Server → Client: DONE\n
+```
+
+**List Files:**
+
+```
+Client → Server: LIST\n
+Server → Client: OK\n
+Server → Client: filename1\n
+Server → Client: filename2\n
+...
 Server → Client: DONE\n
 ```
 
 ---
 
-## 🎯 Phase 1 Completed:
-
-Working local file transfer system with:
+## ✅ Features Implemented
 
 - ✅ TCP client-server architecture
 - ✅ Multi-client support (threading)
-- ✅ Chunked file transfers
-- ✅ Progress bars
-- ✅ Basic ACK protocol
-- ✅ Upload and download functionality
+- ✅ Chunked file transfers (4KB chunks)
+- ✅ Real-time progress bars
+- ✅ Upload/Download functionality
+- ✅ List available files
+- ✅ Error handling (missing files, connection errors)
+- ✅ Binary file support (images, PDFs, etc.)
 
-**Next Phase:** Deploy to AWS EC2 and enable remote file transfers
+---
+
+## 🎯 Special Notes
+
+- All file transfers use binary mode to preserve file integrity
+- Server automatically creates storage directory if it doesn't exist
+- Client automatically creates download directory if it doesn't exist
+- Files with the same name will be overwritten on upload
+- Progress bars show percentage and bytes transferred in real-time
