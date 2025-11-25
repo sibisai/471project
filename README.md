@@ -1,4 +1,4 @@
-# File Transfer Application - Phase 1
+# File Transfer Application - Phase 2: AWS Deployment
 
 ## 👥 Team Members
 
@@ -12,191 +12,133 @@
 
 - **Language:** Python 3.7+
 - **Dependencies:** None (uses standard library only)
-- **Description:** TCP client-server file transfer application with two-connection architecture (control and data), chunked transfers, and real-time progress indicators
+- **Description:** Multi-client FTP server on AWS EC2 with two-connection architecture
 
-## 🚀 How to Execute
+## 🚀 Quick Start
 
-### 1. Start the Server
-
-Open a terminal and run:
+### Deploy Server to EC2
 
 ```bash
-python server.py
+# 1. SSH into EC2
+ssh -i file-transfer-key.pem ubuntu@3.138.32.213
+
+# 2. Upload server code
+scp -i file-transfer-key.pem server.py ubuntu@3.138.32.213:~/
+
+# 3. Run server
+python3 server.py
 ```
 
-The server will start listening on port 5001.
-
-### 2. Start the Client
-
-Open a **second terminal** and run:
+### Run Client Locally
 
 ```bash
+# 1. Update SERVER_HOST in client.py
+SERVER_HOST = "3.138.32.213"
+
+# 2. Run client
 python client.py
 ```
 
-You'll see an interactive menu with the following options.
-
 ---
 
-## 📝 Available Commands
+## 📝 Commands
 
-```
-1. Upload a file       - Upload a file from your local machine to the server
-2. Download a file     - Download a file from the server to your local machine
-3. List available files - View all files currently stored on the server
-4. Exit                - Close the client application
-```
-
-### Example Usage
-
-**Upload a file:**
-
-```
-Enter your choice (1-4): 1
-Enter the path of file to upload: test_files/photo.jpg
-```
-
-**List available files:**
-
-```
-Enter your choice (1-4): 3
-```
-
-**Download a file:**
-
-```
-Enter your choice (1-4): 2
-Enter the filename to download: photo.jpg
-```
-
----
-
-## 📁 Directory Structure
-
-```
-project/
-├── server.py              # Server application
-├── client.py              # Client application
-├── README.md              # This file
-├── server_files/          # Server storage (auto-created)
-├── client_downloads/      # Downloaded files (auto-created)
-└── test_files/            # Sample test files
-```
+| Command  | Description               | Usage                      |
+| -------- | ------------------------- | -------------------------- |
+| Upload   | Upload file to server     | Option 1 → Enter file path |
+| Download | Download file from server | Option 2 → Enter filename  |
+| List     | Show available files      | Option 3                   |
+| Exit     | Close connection          | Option 4                   |
 
 ---
 
 ## ⚙️ Configuration
 
-**Server (server.py):**
+**EC2 Server:**
 
-- Host: `0.0.0.0` (listens on all interfaces)
-- Control Port: `5001` (for commands)
-- Data Port: `5002` (for file transfers)
-- Storage: `server_files/`
-- Chunk size: `4096 bytes`
-
-**Client (client.py):**
-
-- Server: `127.0.0.1` (localhost)
+- Public IP: `3.138.32.213`
 - Control Port: `5001`
-- Downloads: `client_downloads/`
-- Chunk size: `4096 bytes`
+- Data Port: `5002`
+
+**Security Group:**
+
+- Port 5001: TCP from 0.0.0.0/0
+- Port 5002: TCP from 0.0.0.0/0
+- Port 22: SSH access
 
 ---
 
-## 🧪 Testing Multi-Client Support
+## 🧪 Testing
 
-To test multiple simultaneous connections:
+**Multi-Client Test Results:**
 
-1. Keep the server running
-2. Open multiple terminals and run `python client.py` in each
-3. Start uploads/downloads from each client
+- ✅ Concurrent uploads (2 clients)
+- ✅ Concurrent downloads (2 clients)
+- ✅ List files command
+- ✅ Mixed operations (3 clients)
 
-**Note:** Transfers with small files complete instantly. To see multiple active connections and progress indicators in action, temporarily add delays to `server.py`:
-
-```python
-# Add after line 64 (inside upload loop):
-time.sleep(1)
-
-# Add after line 97 (inside download loop):
-time.sleep(1)
-```
-
-Don't forget to remove these delays after testing!
+See `REPORT.md` for detailed testing evidence and logs.
 
 ---
 
-## 📝 Protocol Details
+## 🔧 Troubleshooting
 
-**Two-Connection Architecture:**
+**Connection Refused:**
 
-- **Control Connection (Port 5001):** Persistent connection for commands (UPLOAD/DOWNLOAD/LIST/QUIT)
-- **Data Connection (Port 5002):** Temporary connection opened for each file transfer
+- Check server is running: `ps aux | grep server.py`
+- Verify security group ports 5001 & 5002 are open
+- Confirm EC2 instance is running
 
-**Upload:**
+**Timeout Errors:**
 
-```
-[Control] Client → Server: UPLOAD filename filesize\n
-[Control] Server → Client: OK data_port\n
-[Data]    Client connects to data_port
-[Data]    Client → Server: [binary file data]
-[Control] Server → Client: DONE\n
-```
+- Test connectivity: `telnet 3.138.32.213 5001`
+- Check firewall rules
+- Verify correct public IP
 
-**Download:**
+**Server Stops When SSH Closes:**
 
-```
-[Control] Client → Server: DOWNLOAD filename\n
-[Control] Server → Client: OK filesize data_port\n
-[Control] Client → Server: READY\n
-[Data]    Client connects to data_port
-[Data]    Server → Client: [binary file data]
-[Control] Server → Client: DONE\n
-```
-
-**List Files:**
-
-```
-[Control] Client → Server: LIST\n
-[Control] Server → Client: OK\n
-[Control] Server → Client: filename1\n
-[Control] Server → Client: filename2\n
-...
-[Control] Server → Client: DONE\n
-```
-
-**Quit:**
-
-```
-[Control] Client → Server: QUIT\n
-[Control] Server → Client: OK\n
-[Control] Connection closes
+```bash
+# Run in background
+nohup python3 server.py > server.log 2>&1 &
 ```
 
 ---
 
-## ✅ Features Implemented
+## 📁 Project Structure
 
-- ✅ Two-connection architecture (control + data)
-- ✅ Persistent control connection for commands
-- ✅ Temporary data connection for file transfers
-- ✅ Multi-client support (threading)
-- ✅ Chunked file transfers (4KB chunks)
-- ✅ Real-time progress indicators
-- ✅ Upload/Download functionality
-- ✅ List available files
-- ✅ Error handling (missing files, connection errors)
-- ✅ Binary file support (images, PDFs, etc.)
+```
+project/
+├── server.py           # Server (runs on EC2)
+├── client.py           # Client (runs locally)
+├── README.md           # This file
+├── REPORT.md           # Technical documentation
+├── screenshots/        # Testing evidence
+└── test_files/         # Sample files
+```
 
 ---
 
-## 🎯 Special Notes
+## ✅ Requirements Met
 
-- Uses **two-connection architecture** like FTP: persistent control connection (port 5001) for commands and temporary data connection (port 5002) for file transfers
-- Control connection remains open throughout the client session
-- Data connection opens/closes for each upload/download operation
-- All file transfers use binary mode to preserve file integrity
-- Server automatically creates storage directory if it doesn't exist
-- Client automatically creates download directory if it doesn't exist
-- Files with the same name will be overwritten on upload
-- Progress indicators show percentage and bytes transferred in real-time
+| Requirement      | Status                     |
+| ---------------- | -------------------------- |
+| Protocol design  | ✅ Two-connection FTP-like |
+| GET (Download)   | ✅ Tested                  |
+| PUT (Upload)     | ✅ Tested                  |
+| LS (List)        | ✅ Tested                  |
+| Multi-client     | ✅ Threading               |
+| Cloud deployment | ✅ EC2                     |
+| Documentation    | ✅ README + REPORT         |
+
+---
+
+## 📄 Additional Documentation
+
+- **REPORT.md** - Complete technical details, architecture, testing analysis
+- **Screenshots/** - EC2 console, security groups, testing evidence
+
+---
+
+## 📞 Support
+
+For questions, contact any team member listed above.

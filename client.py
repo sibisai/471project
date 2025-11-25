@@ -3,7 +3,8 @@ import os
 import time
 
 # Configuration
-SERVER_HOST = "127.0.0.1"
+# SERVER_HOST = "127.0.0.1"
+SERVER_HOST = "3.138.32.213" # EC2 public IP
 CONTROL_PORT = 5001
 CHUNK_SIZE = 4096
 DOWNLOAD_DIR = "client_downloads"
